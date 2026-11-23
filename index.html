@@ -111,7 +111,7 @@
       <span class="badge" aria-hidden="true">ب</span>
       <span class="app-text">
         <span class="app-name">برق</span>
-        <span class="app-hint">ينسخ الرقم ويفتح التطبيق</span>
+        <span class="app-hint">يفتح التطبيق وينسخ الرقم</span>
       </span>
       <span class="chev" aria-hidden="true">‹</span>
     </a>
@@ -119,7 +119,7 @@
       <span class="badge" aria-hidden="true">S</span>
       <span class="app-text">
         <span class="app-name">STC Bank</span>
-        <span class="app-hint">ينسخ الرقم ويفتح التطبيق</span>
+        <span class="app-hint">يفتح التطبيق وينسخ الرقم</span>
       </span>
       <span class="chev" aria-hidden="true">‹</span>
     </a>
@@ -127,13 +127,13 @@
       <span class="badge" aria-hidden="true">U</span>
       <span class="app-text">
         <span class="app-name">urpay</span>
-        <span class="app-hint">ينسخ الرقم ويفتح التطبيق</span>
+        <span class="app-hint">يفتح التطبيق وينسخ الرقم</span>
       </span>
       <span class="chev" aria-hidden="true">‹</span>
     </a>
   </div>
 
-  <p class="note">إذا فتح لك المتجر، اضغط «فتح»، وبعدها الصق الرقم في شاشة التحويل.</p>
+  <p class="note">بعد ما يفتح التطبيق، روح للتحويل والصق الرقم.</p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite">تم نسخ الرقم ✓</div>
@@ -142,14 +142,22 @@
   const NUMBER = "0530259311";
 
   const APPS = {
-    barq:    { ios: "https://apps.apple.com/sa/app/id6463204586", android: "https://play.google.com/store/apps/details?id=sa.com.barraq" },
-    stcbank: { ios: "https://apps.apple.com/sa/app/id6458546150", android: "https://play.google.com/store/apps/details?id=sa.com.stcbank" },
-    urpay:   { ios: "https://apps.apple.com/sa/app/id1585778338", android: "https://play.google.com/store/apps/details?id=com.urpay.consumer" }
+    barq:    { scheme: "barq",    pkg: "sa.com.barraq" },
+    stcbank: { scheme: "stcbank", pkg: "sa.com.stcbank" },
+    urpay:   { scheme: "urpay",   pkg: "com.urpay.consumer" }
   };
 
   const ua = navigator.userAgent || "";
   const isAndroid = /Android/i.test(ua);
-  const platform = isAndroid ? "android" : "ios";
+
+  function appLink(app) {
+    if (isAndroid) {
+      const store = "https://play.google.com/store/apps/details?id=" + app.pkg;
+      return "intent://#Intent;scheme=" + app.scheme + ";package=" + app.pkg +
+             ";S.browser_fallback_url=" + encodeURIComponent(store) + ";end";
+    }
+    return app.scheme + "://";
+  }
 
   function copyNumber() {
     try {
@@ -188,7 +196,7 @@
   document.getElementById("copy").addEventListener("click", copyNumber);
 
   document.querySelectorAll(".app").forEach((a) => {
-    a.href = APPS[a.dataset.app][platform];
+    a.href = appLink(APPS[a.dataset.app]);
     // Copy inside the tap itself, then let the link open normally
     // so the phone treats it as a real tap and hands it to the app store app.
     a.addEventListener("click", copyNumber);
